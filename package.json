@@ -1,0 +1,20 @@
+{
+  "name": "visitor-logger",
+  "version": "1.0.0",
+  "description": "Simple Express app that logs visitor IP, user agent, and device type.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "express",
+    "logging",
+    "analytics"
+  ],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
