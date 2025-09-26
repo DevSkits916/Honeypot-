@@ -1,10 +1,12 @@
 const STORAGE_KEY = 'visitor-insights:entries';
 const MAX_LOG_ENTRIES = 200;
+const DEVICE_ID_KEY = 'visitor-insights:device-id';
 
 const selectors = {
   ip: document.querySelector('[data-current-ip]'),
   location: document.querySelector('[data-current-location]'),
   organization: document.querySelector('[data-current-organization]'),
+  deviceId: document.querySelector('[data-current-deviceid]'),
   device: document.querySelector('[data-current-device]'),
   platform: document.querySelector('[data-current-platform]'),
   language: document.querySelector('[data-current-language]'),
@@ -15,8 +17,30 @@ const selectors = {
   emptyMessage: document.getElementById('emptyMessage'),
   tableBody: document.getElementById('logTableBody'),
   downloadButton: document.getElementById('downloadLogs'),
-  clearButton: document.getElementById('clearLogs'),
 };
+
+function getOrCreateDeviceId() {
+  try {
+    let id = localStorage.getItem(DEVICE_ID_KEY);
+    if (id) {
+      return id;
+    }
+
+    if (crypto?.randomUUID) {
+      id = crypto.randomUUID();
+    } else {
+      const random = Math.random().toString(36).slice(2);
+      const timestamp = Date.now().toString(36);
+      id = `${timestamp}-${random}`;
+    }
+
+    localStorage.setItem(DEVICE_ID_KEY, id);
+    return id;
+  } catch (error) {
+    console.warn('Unable to access localStorage for device id:', error);
+    return 'Unavailable';
+  }
+}
 
 function detectDeviceType(ua) {
   const agent = ua.toLowerCase();
@@ -57,16 +81,15 @@ function updateActionStates(entries) {
     selectors.downloadButton.disabled = !hasEntries;
     selectors.downloadButton.setAttribute('aria-disabled', String(!hasEntries));
   }
-  if (selectors.clearButton) {
-    selectors.clearButton.disabled = !hasEntries;
-    selectors.clearButton.setAttribute('aria-disabled', String(!hasEntries));
-  }
 }
 
 function updateCurrentVisit(entry) {
   selectors.ip.textContent = entry.ip || 'Unavailable';
   selectors.location.textContent = formatLocation(entry);
   selectors.organization.textContent = entry.organization || 'Unavailable';
+  if (selectors.deviceId) {
+    selectors.deviceId.textContent = entry.deviceId || 'Unavailable';
+  }
   selectors.device.textContent = `${entry.deviceType}${entry.screenOrientation ? ` (${entry.screenOrientation})` : ''}`;
   selectors.platform.textContent = entry.platform || 'Unavailable';
   selectors.language.textContent = entry.language || 'Unavailable';
@@ -95,6 +118,7 @@ function renderLogEntries(entries) {
       new Date(entry.timestamp).toLocaleString(),
       entry.ip || 'Unavailable',
       formatLocation(entry),
+      entry.deviceId || 'Unavailable',
       `${entry.deviceType}${entry.platform ? ` · ${entry.platform}` : ''}`,
       entry.referrer || 'Direct',
     ];
@@ -152,6 +176,7 @@ function buildBaseEntry() {
   const ua = navigator.userAgent || 'Unavailable';
   return {
     timestamp: new Date().toISOString(),
+    deviceId: getOrCreateDeviceId(),
     userAgent: ua,
     deviceType: detectDeviceType(ua),
     platform: navigator.userAgentData?.platform || navigator.platform || 'Unavailable',
@@ -180,6 +205,7 @@ function downloadCsv(entries) {
     'longitude',
     'postal',
     'organization',
+    'deviceId',
     'deviceType',
     'platform',
     'language',
@@ -218,13 +244,12 @@ function downloadCsv(entries) {
   URL.revokeObjectURL(url);
 }
 
-function clearLog() {
-  localStorage.removeItem(STORAGE_KEY);
-  renderLogEntries([]);
-}
-
 async function init() {
-  const existingEntries = getStoredEntries();
+  const deviceId = getOrCreateDeviceId();
+  const existingEntries = getStoredEntries().map((entry) => ({
+    ...entry,
+    deviceId: entry.deviceId || deviceId,
+  }));
   renderLogEntries(existingEntries);
 
   const entry = { ...buildBaseEntry(), ...(await resolveGeolocation()) };
@@ -236,10 +261,6 @@ async function init() {
 
   selectors.downloadButton?.addEventListener('click', () => {
     downloadCsv(getStoredEntries());
-  });
-
-  selectors.clearButton?.addEventListener('click', () => {
-    clearLog();
   });
 }
 
