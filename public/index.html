@@ -2,14 +2,120 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Visitor Logger</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="A fully client-side visitor logger that records each visit locally and surfaces the captured details instantly."
+    />
+    <title>Visitor Insights Dashboard</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <main>
-      <h1>Welcome</h1>
-      <p>Your visit has been recorded.</p>
+    <main class="page" aria-live="polite">
+      <header class="page__header">
+        <h1>Visitor Insights Dashboard</h1>
+        <p class="lead">
+          This page automatically captures visit information and stores it inside
+          your browser for quick review—no extra confirmation needed.
+        </p>
+      </header>
+
+      <section class="panel" aria-label="Current visit details">
+        <h2>Current Visit</h2>
+        <p class="panel__subtitle">The information shown below updates as soon as we finish gathering it.</p>
+        <dl class="detail-grid">
+          <div>
+            <dt>IP Address</dt>
+            <dd data-current-ip>Fetching&hellip;</dd>
+          </div>
+          <div>
+            <dt>Approximate Location</dt>
+            <dd data-current-location>Fetching&hellip;</dd>
+          </div>
+          <div>
+            <dt>Network / Provider</dt>
+            <dd data-current-organization>Fetching&hellip;</dd>
+          </div>
+          <div>
+            <dt>Device Type</dt>
+            <dd data-current-device>Detecting&hellip;</dd>
+          </div>
+          <div>
+            <dt>Platform</dt>
+            <dd data-current-platform>Detecting&hellip;</dd>
+          </div>
+          <div>
+            <dt>Browser Language</dt>
+            <dd data-current-language>Detecting&hellip;</dd>
+          </div>
+          <div>
+            <dt>Time Zone</dt>
+            <dd data-current-timezone>Detecting&hellip;</dd>
+          </div>
+          <div>
+            <dt>Screen Resolution</dt>
+            <dd data-current-screen>Detecting&hellip;</dd>
+          </div>
+          <div>
+            <dt>Referrer</dt>
+            <dd data-current-referrer>Detecting&hellip;</dd>
+          </div>
+          <div class="detail-grid__full">
+            <dt>User Agent</dt>
+            <dd data-current-useragent>Detecting&hellip;</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="panel" aria-label="Stored visit log">
+        <div class="panel__header">
+          <h2>Saved Visit Log</h2>
+          <div class="panel__actions">
+            <button type="button" id="downloadLogs" class="button" aria-live="off">
+              Download CSV
+            </button>
+            <button type="button" id="clearLogs" class="button button--secondary" aria-live="off">
+              Clear Saved Data
+            </button>
+          </div>
+        </div>
+        <p class="panel__subtitle">
+          A copy of each visit is kept in this browser's local storage so the log stays private and portable.
+        </p>
+        <p id="emptyMessage" class="empty-state">No saved visits yet. Reload the page to capture your first entry.</p>
+        <div class="table-wrapper" role="region" aria-live="polite" aria-atomic="true">
+          <table class="log-table">
+            <caption class="visually-hidden">Historical visit data stored in the browser</caption>
+            <thead>
+              <tr>
+                <th scope="col">Time</th>
+                <th scope="col">IP</th>
+                <th scope="col">Location</th>
+                <th scope="col">Device</th>
+                <th scope="col">Source</th>
+              </tr>
+            </thead>
+            <tbody id="logTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel" aria-label="How it works">
+        <h2>How This Logger Works</h2>
+        <p>
+          Everything you see here is generated on the client. The page contacts a public geolocation service to resolve
+          your IP address, then saves a summary of the visit to <code>localStorage</code>. Because the data never leaves
+          your browser, you can review it, download it as a CSV file, or clear it whenever you like.
+        </p>
+      </section>
     </main>
+
+    <noscript>
+      <p class="noscript-warning">
+        This experience requires JavaScript to gather and store visit information. Please enable JavaScript and reload the page.
+      </p>
+    </noscript>
+
+    <script src="app.js" defer></script>
   </body>
 </html>
