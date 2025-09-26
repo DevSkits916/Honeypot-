@@ -13,10 +13,11 @@
   <body>
     <main class="page" aria-live="polite">
       <header class="page__header">
+        <p class="eyebrow">Live capture enabled</p>
         <h1>Visitor Insights Dashboard</h1>
         <p class="lead">
-          This page automatically captures visit information and stores it inside
-          your browser for quick review—no extra confirmation needed.
+          Every visit is captured instantly and retained on this device, giving you a private audit trail
+          that can't be cleared from the interface.
         </p>
       </header>
 
@@ -35,6 +36,10 @@
           <div>
             <dt>Network / Provider</dt>
             <dd data-current-organization>Fetching&hellip;</dd>
+          </div>
+          <div>
+            <dt>Device Identifier</dt>
+            <dd data-current-deviceid>Generating&hellip;</dd>
           </div>
           <div>
             <dt>Device Type</dt>
@@ -74,13 +79,12 @@
             <button type="button" id="downloadLogs" class="button" aria-live="off">
               Download CSV
             </button>
-            <button type="button" id="clearLogs" class="button button--secondary" aria-live="off">
-              Clear Saved Data
-            </button>
+            <span class="persistence-badge" role="status">Persistent per-device log</span>
           </div>
         </div>
         <p class="panel__subtitle">
-          A copy of each visit is kept in this browser's local storage so the log stays private and portable.
+          A copy of each visit is kept in this browser's local storage alongside an anonymized device identifier,
+          creating a tamper-resistant timeline that travels with this device.
         </p>
         <p id="emptyMessage" class="empty-state">No saved visits yet. Reload the page to capture your first entry.</p>
         <div class="table-wrapper" role="region" aria-live="polite" aria-atomic="true">
@@ -91,6 +95,7 @@
                 <th scope="col">Time</th>
                 <th scope="col">IP</th>
                 <th scope="col">Location</th>
+                <th scope="col">Device ID</th>
                 <th scope="col">Device</th>
                 <th scope="col">Source</th>
               </tr>
@@ -105,7 +110,7 @@
         <p>
           Everything you see here is generated on the client. The page contacts a public geolocation service to resolve
           your IP address, then saves a summary of the visit to <code>localStorage</code>. Because the data never leaves
-          your browser, you can review it, download it as a CSV file, or clear it whenever you like.
+          your browser, you can review it or download it as a CSV file whenever you like.
         </p>
       </section>
     </main>
